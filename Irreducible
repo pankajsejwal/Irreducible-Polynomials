@@ -4,13 +4,6 @@
 //Delete duplicates in a list
 > proc uniqueInList(list l) { list tk; for(int i=1;i<=size(l);i++) { if(!listMember (tk,l[i])) { tk = insert(tk,l[i]);}} return(tk);}
 
-//Degree of polynomial, same as deg(poly)
-> proc polydeg(poly p) {              
-  int k = 0;
-  intvec vec = leadexp(p);
-  for(int i=1;i<=size(vec);i++) {
-  k = k+vec[i]; }
-  return(k); }
 
 // Array of prime factors
 // Example: pfactors(10);
