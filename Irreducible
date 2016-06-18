@@ -1,0 +1,181 @@
+//List Membership
+> proc listMember(list l,def x){ for(int i=1;i<size(l);i++) { if(l[i]==x) { return(1); } } return(0);}
+
+//Delete duplicates in a list
+> proc uniqueInList(list l) { list tk; for(int i=1;i<=size(l);i++) { if(!listMember (tk,l[i])) { tk = insert(tk,l[i]);}} return(tk);}
+
+//Degree of polynomial, same as deg(poly)
+> proc polydeg(poly p) {              
+  int k = 0;
+  intvec vec = leadexp(p);
+  for(int i=1;i<=size(vec);i++) {
+  k = k+vec[i]; }
+  return(k); }
+
+// Array of prime factors
+// Example: pfactors(10);
+> proc pfactors(int n) { return(primefactors (n)[1]);}            
+
+// Returns characteristics of ring
+//Examples: pPrime(basering);
+> proc pPrime(def r) { return(ringlist(r)[1][1]); }      
+  
+//BenOr Irreducibility test
+// Examples: 
+// > benOrTest (x2+1); --> 0
+// > benOrTest (x3+x+1); --> 1
+> proc benOrTest(poly pl) {                           
+  ring prev = basering;    
+  int pp = pPrime(basering);  
+  ring r = pp,v,dp;
+  map F = prev,var(1);
+  poly p = F(pl); 
+  for(int i=1;i<=(deg(p) div 2);i++) {
+  if(gcd(division(v^(pp^i)-v,p)[2][1],p)!=1) { return(0);}} return(1);}
+
+// Rabin polynomial irreducibility test
+//> rabin(x4-1); --> 0
+//> rabin(x3+x+1); --> 1
+> proc rabin(poly pnp){
+  ring rr = basering; 
+  int pp = pPrime(basering);
+  ring r = pp,v,dp;
+  pp = pPrime(r);
+  map F = rr,var(1);
+  poly p = F(pnp);
+  int n = deg(p);
+  list pf = pfactors(n); list nj; 
+  for(int j=1;j<=size(pf);j++)
+  { nj=insert(nj,(n div pf[j]));  }
+  for(int i=1;i<=size(pf);i++)
+  { if(gcd(division(v^(pp^nj[i])-v,p)[2][1],p)!=1) { return(0);}}
+  poly g = division(v^(pp^size(pf))-v,p)[2][1];
+  if(g==0) { return(0);} else { return(1);}}
+  
+// Order of a polynomial  
+//Examples: > polyOrder (x5+x-1); --> 21
+> proc polyOrder(poly pp) {
+  ring rp = basering;
+  int pb = pPrime(basering);  
+  ring r = pb,v,dp;
+  poly rem;
+  pb = pPrime(r);
+  map F = rp,var(1);
+  poly p = F(pp);  
+  int n = deg(p);
+  if(subst(p,v,0)!=0) {
+  for(int i=1;i<=pb^n;i++) {
+  rem = division(v^i-1,p)[2][1];  
+  if(rem==0) { return(i); }}}
+  else { pOrder(conditionPoly(p),v);}}  
+
+// Used in finding order of a polynomial  
+> proc conditionPoly(poly p) {
+  def cont=1; def i=0;
+  while(cont==1) {
+    if(jet(p,i)!=0) { cont=0;} else {i=i+1;}} 
+  p = division(p,jet(p,i))[1][1,1];
+  return(p); }
+
+// Returns number of irreducible for a given order and degree of minimum poly  
+> proc numOfIrred(int pord,int m) { ring r = 0,x,dp; return(pord div m); }           
+
+// Mobius function
+// Examples: 
+//> mobiusfunc (5); --> -1
+//> mobiusfunc (4); --> 0
+//> mobiusfunc (3); --> -1
+//> mobiusfunc (8); --> 0
+> proc mobiusfunc(int n) { 
+  int s=0;
+  def ftrs = primefactors(n); 
+  def pr = ftrs[1]; 
+  def multp = ftrs[2]; 
+  for(int i=1;i<=size(multp);i++){s = s+multp[i];} 
+  if(n==1) { return(n); } 
+  else {if(s == size(multp))
+  { return((-1)^s); } else { return(0);}}}
+ 
+// List all factors of a number 
+> proc allfactors(int n) { list l; for(int i=1;i<=n;i++) { if(n mod i == 0) {  l = insert(l,i); }} return(l);}
+  
+// Number of irreducible polynomials of a given degree
+//Examples: 
+//> numOfIrredPoly (3); --> 2
+//> numOfIrredPoly (6);  --> 9
+> proc numOfIrredPoly(def n) { 
+  def factrs = allfactors (n); 
+  int p = 0; 
+  int chr = pPrime(basering); 
+  ring r = 0,x,dp;
+  for(int i=1;i<=size(factrs);i++)
+    { p = p+ mobiusfunc(n div factrs[i])*chr^factrs[i]; }  
+  return(p div n);}
+
+// To find nth Cyclotomic Polynomial, it can also be found as a function in "finvar.lib" as "cyclotomic" command. (I found it later !)  
+//> nthCyclotonicPoly (3); --> x2+x+1
+//> nthCyclotonicPoly (3); --> x8+x7+x5+x4+x3+x+1
+> proc nthCyclotonicPoly(int n) { 
+  def factrs = allfactors (n); 
+  poly a = var(1); 
+  ring prev = basering;
+  ring r = 0,v,dp;     
+  poly p = 1; poly d=1; int q = 1;
+  for(int i=1;i<=size(factrs);i++)
+    { q = mobiusfunc(factrs[i]); 
+	  if(q<0) { d = d*(v^(n div factrs[i])-1); }
+      else {p = p * (v^(n div factrs[i])-1)^q;}
+    }	
+   d = division(p,d)[1][1,1]; 
+   setring prev;  
+   map F = r,var(1); 
+   poly pp = F(d);
+   return(pp); }
+
+// Returns product of all irreducible polynomials of a given degree over a given characteristics
+// Example : > prodIrredPoly (2,4);--> x12+x9+x6+x3+1
+> proc prodIrredPoly(int qq,int n) { 
+  def factrs = allfactors (n); 
+  poly a = var(1); 
+  ring prev = basering;
+  ring r = 0,v,dp;     
+  poly p = 1; poly d=1; int q = 1;
+  for(int i=1;i<=size(factrs);i++)
+    { q = mobiusfunc(factrs[i]); 
+	  if(q<0) { d = d*(v^(qq^(n div factrs[i]))-v); }
+      else {p = p * (v^(qq^(n div factrs[i]))-v)^q;}
+    }	
+   d = division(p,d)[1][1,1]; 
+   setring prev;  
+   map F = r,var(1); 
+   poly pp = F(d);
+   return(pp); }
+   
+
+// Check if an integer satisfies multiplicative function property.
+// > multiplicativeFunc (4); --> 0
+// > multiplicativeFunc (2); --> 1
+> proc multiplicativeFunc(int n) {
+  def v = pfactors (n); 
+  int prod = 1; 
+  for(int i=1;i<=size(v);i++)
+   { prod = prod * mobiusfunc(v[i]); } 
+  if( prod == mobiusfunc(n)) 
+   { return(1);} 
+  else { return(0); }}
+
+// To find the multiplicative order of b^k = 1 mod a
+// > multiplicativeOrder (2,3); --> 2
+> proc multiplicativeOrder(int b,int a) { int i=1; while(modularPow(b,i,a) !=1) { i = i+1; } return(i); }
+
+// Fast modular arithmetic.
+// > modularPow (2,4,10); --> 6
+// > modularPow (20,400,7); --> 1
+// > modularPow (20,9999,7); --> 6
+> proc modularPow(bigint base,bigint expon,bigint moduls) { if(moduls==1) { return(0);} bigint c=1; 
+  for(int eprime=1;eprime<=expon;eprime++) 
+    { c = (c*base) mod moduls; } 
+  return(c); }
+
+
+  
