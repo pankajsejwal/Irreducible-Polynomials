@@ -12,5 +12,5 @@ g) Nth Cyclotomic polynomial. <br>
 h) Product of irreducible polynomials of a given degree over a ring of some characteristics. <br>
 i) Multiplicative function test for an integer. <br>
 j) Fast modular arithmetic. <br>
-k) List related functions like list membership and delete duplicates.
+k) List related functions like list membership and delete duplicates.<br>
 l) Find specific Cyclotomic polynomials wholse product is equal to product of irreducible polynomials in a field.
