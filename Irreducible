@@ -92,7 +92,7 @@ proc mobiusfunc(int n) {
 // List all factors of a number 
 proc allfactors(int n) { list l; for(int i=1;i<=n;i++) { if(n mod i == 0) {  l = insert(l,i); }} return(l);}
   
-// Number of irreducible polynomials of a given degree
+// Number of irreducible polynomials of a given degree over a field
 //Examples: 
 //> numOfIrredPoly (3); --> 2
 //> numOfIrredPoly (6);  --> 9
@@ -106,9 +106,9 @@ proc numOfIrredPoly(def n) {
   return(p div n);}
 
 // To find nth Cyclotomic Polynomial, it can also be found as a function in "finvar.lib" as "cyclotomic" command. (I found it later !)  
-//> nthCyclotonicPoly (3); --> x2+x+1
-//> nthCyclotonicPoly (3); --> x8+x7+x5+x4+x3+x+1
-proc nthCyclotonicPoly(int n) { 
+//> nthCyclotomicPoly (3); --> x2+x+1
+//> nthCyclotomicPoly (3); --> x8+x7+x5+x4+x3+x+1
+proc nthCyclotomicPoly(int n) { 
   def factrs = allfactors (n); 
   poly a = var(1); 
   ring prev = basering;
@@ -170,5 +170,25 @@ proc modularPow(bigint base,bigint expon,bigint moduls) { if(moduls==1) { return
     { c = (c*base) mod moduls; } 
   return(c); }
 
-
+// Product of irreducible polynomials in a field can also be represented as product of specific Cyclotomic polynomials.
+//> prodIrredPolyAsCyclotomic (2,4); = x12+x9+x6+x3+1 =  nthCyclotomicPoly (5)*nthCyclotomicPoly(15);
+[1]:
+   5
+[2]:
+   15
+//> prodIrredPolyAsCyclotomic (2,6);
+[1]:
+   9
+[2]:
+   21
+[3]:
+   63
+proc prodIrredPolyAsCyclotomic(int qq,int n)
+  {  def pr = allfactors(qq^n-1); 
+     list k; list p;
+     int j = 0; int new = 1; 
+     for(int i=1;i<=size(pr)-1;i++)
+	 { new = 1;
+	   for(j=1;j<n;j++) {if( modularPow(qq,j,pr[i])==1) {k = list(); break; } else {if(new ==1 ) {k = insert(k,pr[i]); new=0;}}} 
+	   if(size(k)>=1) {p = insert(p,k[1]);}}  return(p);} 
   
